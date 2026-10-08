@@ -1,0 +1,56 @@
+name: Test plugin installation
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-copilot-cli-installation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out pull request branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Install Copilot CLI
+        run: npm install --global @github/copilot
+
+      - name: Add azure-skills marketplace
+        run: copilot plugin marketplace add .
+
+      - name: Enumerate, install, and verify repository plugins
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const testPluginInstallation = require("./.github/scripts/test-plugin-installation.js");
+            await testPluginInstallation({ cli: "copilot", exec, core });
+
+  test-claude-code-installation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out pull request branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Install Claude Code
+        run: npm install --global @anthropic-ai/claude-code
+
+      - name: Add azure-skills marketplace
+        run: |
+          repo_root="$(git rev-parse --show-toplevel)"
+          claude plugin marketplace add "$repo_root"
+
+      - name: Enumerate, install, and verify repository plugins
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const testPluginInstallation = require("./.github/scripts/test-plugin-installation.js");
+            await testPluginInstallation({ cli: "claude", exec, core });
