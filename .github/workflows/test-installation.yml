@@ -6,6 +6,9 @@ on:
 permissions:
   contents: read
 
+env:
+  NPM_CONFIG_REGISTRY: https://packagefeedproxy.microsoft.io/npm/
+
 jobs:
   test-copilot-cli-installation:
     runs-on: ubuntu-latest
